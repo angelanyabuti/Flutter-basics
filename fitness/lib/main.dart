@@ -19,7 +19,8 @@ class MyApp extends StatelessWidget {
         title: 'Namer App',
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepOrange),
+          //the theme when changed changes globally
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
         ),
         home: MyHomePage(),
       ),
@@ -47,19 +48,47 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) { //every widget defines a build methodthat is automatically called every time the widget's circumstances change so that it is always up to date
     var appState = context.watch<MyAppState>(); //MyHomePage tracks changes to the apps current state using the watch method
+    var pair = appState.current;
 
     return Scaffold(// every build method must return a widget or a nested tree of widgets
-      body: Column(//flutter widget, takes a number of children and puts them in a column from top to bottom. The column places the children at the top by default but that can be changed
-        children: [
-          Text('A random AWESOME idea:'),//random text 
-          Text(appState.current.asCamelCase),//takes appstate, and accesses the only member of that class, current(which is a wordpair)
+      body: Center(
+        child: Column(//flutter widget, takes a number of children and puts them in a column from top to bottom. The column places the children at the top by default but that can be changed. Refacto(ctrl + .) to center horizontally
+          mainAxisAlignment: MainAxisAlignment.center, //centering the content along the vertical axis
+          children: [
+            Text('A random AWESOME idea:'),//random text 
+            BigCard(pair: pair),//takes appstate, and accesses the only member of that class, current(which is a wordpair)
+            SizedBox(height: 10),        
+            //Adding a button
+            ElevatedButton(
+              onPressed: (){
+                appState.getNext(); //calling the getnext function
+              }, child: Text('Next'),),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
-          //Adding a button
-          ElevatedButton(
-            onPressed: (){
-              appState.getNext(); //calling the getnext function
-            }, child: Text('Next'),),
-        ],
+class BigCard extends StatelessWidget {
+  const BigCard({
+    super.key,
+    required this.pair,
+  });
+
+  final WordPair pair;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context); //requests the apps current theme
+    final style = theme.textTheme.displayMedium!.copyWith( //theme.textTheme helps yo access the apps font theme. Copy with returns the copy of the text style with the changes you define
+      color: theme.colorScheme.onPrimary, //onPrimary property defines a color that is a good fit for use on the app's primary color
+    );
+    return Card(
+      color: theme.colorScheme.secondary,
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Text(pair.asLowerCase, style: style, semanticsLabel: "${pair.first} ${pair.second}",),
       ),
     );
   }
