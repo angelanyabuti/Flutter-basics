@@ -42,6 +42,16 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners();
   }
+  var favourites = <WordPair>[];//initialized with an empty list []. The list can only contain word pairs: <WordPair>[]
+
+  void toggleFavourite() {
+    if (favourites.contains(current)) {
+      favourites.remove(current);
+    }else{
+      favourites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -49,6 +59,13 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) { //every widget defines a build methodthat is automatically called every time the widget's circumstances change so that it is always up to date
     var appState = context.watch<MyAppState>(); //MyHomePage tracks changes to the apps current state using the watch method
     var pair = appState.current;
+
+    IconData icon;
+    if (appState.favourites.contains(pair)) {
+      icon = Icons.favorite;
+    }else{
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(// every build method must return a widget or a nested tree of widgets
       body: Center(
@@ -59,10 +76,24 @@ class MyHomePage extends StatelessWidget {
             BigCard(pair: pair),//takes appstate, and accesses the only member of that class, current(which is a wordpair)
             SizedBox(height: 10),        
             //Adding a button
-            ElevatedButton(
-              onPressed: (){
-                appState.getNext(); //calling the getnext function
-              }, child: Text('Next'),),
+            Row(
+              mainAxisSize: MainAxisSize.min,//tells the row not to take all available horizontal space
+              children: [
+                
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavourite();
+                  },
+                  icon: Icon(icon),
+                   label: Text('Like')),
+                SizedBox(width: 10,),
+                ElevatedButton(
+                  onPressed: (){
+                    appState.getNext(); //calling the getnext function
+                  }, child: Text('Next'),),
+                
+              ],
+            ),
           ],
         ),
       ),
